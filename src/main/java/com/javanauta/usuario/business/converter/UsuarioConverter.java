@@ -63,6 +63,16 @@ public class UsuarioConverter {
                 .build();
     }
 
+    public UsuarioDTO atualizarUsuarioDTO(Usuario usuarioEntity, UsuarioDTO usuarioDTO){
+        return UsuarioDTO.builder()
+                .nome(usuarioDTO != null ? usuarioDTO.getNome(): usuarioEntity.getSenha())
+                .senha(usuarioDTO != null ? usuarioDTO.getSenha(): usuarioEntity.getSenha())
+                .email(usuarioDTO != null ? usuarioDTO.getEmail(): usuarioEntity.getSenha())
+                .enderecos(usuarioDTO.getEnderecos())
+                .telefones(usuarioDTO.getTelefones())
+                .build();
+    }
+
     // Converter ClasseDTO -> ClasseEntity
     public Usuario paraUsuario(UsuarioDTO usuarioDTO) {
         return Usuario.builder()
@@ -109,6 +119,17 @@ public class UsuarioConverter {
         return Telefone.builder()
                 .ddd(telefoneDTOS.ddd())
                 .numero(telefoneDTOS.numero())
+                .build();
+    }
+
+    public Usuario atualizarUsuario(Usuario usuarioEntity, UsuarioDTO usuarioDTO) {
+        return Usuario.builder()
+                .nome(usuarioEntity != null ? usuarioEntity.getNome() : usuarioDTO.getNome())
+                .senha(usuarioEntity != null ? usuarioEntity.getSenha() : usuarioDTO.getSenha())
+                .email(usuarioDTO != null ? usuarioDTO.getEmail() : usuarioEntity.getEmail())
+                .enderecos(usuarioEntity.getEnderecos())
+                .telefones(usuarioEntity.getTelefones())
+                .id(usuarioEntity.getId())
                 .build();
     }
 }
