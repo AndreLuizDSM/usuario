@@ -50,10 +50,11 @@ public class UsuarioService {
 
     public UsuarioDTO retornarEmail(String email){
         try {
-        return usuarioConverter.paraUsuarioDTO
+
+            return usuarioConverter.paraUsuarioDTO
                 (usuarioRepository.findByEmail(email).orElseThrow(
-                ()-> new ConflictException("Email não encontrado: " + email))
-                );
+                ()-> new ConflictException("Email não encontrado: " + email)));
+
         } catch (Exception e) {
             throw new ConflictException("Email não encontrado " + email);
         }
@@ -99,5 +100,32 @@ public class UsuarioService {
         Telefone telefone = usuarioConverter.atualizarTelefone(telefoneEntity, telefoneDTO);
         telefoneRepository.save(telefone);
             return usuarioConverter.paraTelefoneDTO(telefone);
+    }
+
+    public EnderecoDTO cadastroEnderecoDTO (String token ,EnderecoDTO enderecoDTO) {
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(
+                ()-> new ConflictException("Email não encontrado " + email)
+        );
+        Endereco endereco = usuarioConverter.paraEnderecoEntity(enderecoDTO, usuarioEntity.getId());
+
+        Endereco enderecoEntity = enderecoRepository.save(endereco);
+
+            return usuarioConverter.paraEnderecoDTO(enderecoEntity);
+
+    }
+
+    public TelefoneDTO cadastroTelefoneDTO (String token ,TelefoneDTO telefoneDTO) {
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
+                ()-> new ConflictException("Email não encontrado " + email)
+        );
+
+        Telefone telefoneEntity = usuarioConverter.paraTelefoneEntity(telefoneDTO, usuario.getId());
+
+        telefoneRepository.save(telefoneEntity);
+
+            return usuarioConverter.paraTelefoneDTO(telefoneEntity);
     }
 }
