@@ -27,6 +27,18 @@ public class Controller {
         return ResponseEntity.ok(usuarioService.salvarUsuario(usuarioDTO));
     }
 
+    @PostMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> salvarEndereco(@RequestHeader("Authorization") String token,
+                                                      @RequestBody EnderecoDTO enderecoDTO) {
+        return ResponseEntity.ok(usuarioService.cadastroEnderecoDTO(token, enderecoDTO));
+    }
+
+    @PostMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> salvarTelefone(@RequestHeader("Authorization") String token,
+                                                      @RequestBody TelefoneDTO telefoneDTO){
+        return ResponseEntity.ok(usuarioService.cadastroTelefoneDTO(token, telefoneDTO));
+    }
+
     @PostMapping("/login")
     public String login(@RequestBody UsuarioDTO usuarioDTO){
         Authentication authentication = authenticationManager.authenticate(
@@ -37,7 +49,7 @@ public class Controller {
     }
 
     @GetMapping
-    public ResponseEntity<UsuarioDTO    > buscarEmail(@RequestParam("email") String email){
+    public ResponseEntity<UsuarioDTO> buscarEmail(@RequestParam("email") String email){
         return ResponseEntity.ok(usuarioService.retornarEmail(email));
     }
 
