@@ -54,7 +54,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
             }
         }
-
         // Continua a cadeia de filtros, permitindo que a requisição prossiga
         chain.doFilter(request, response);
     }
