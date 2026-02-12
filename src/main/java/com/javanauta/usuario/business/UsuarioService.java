@@ -11,7 +11,7 @@ import com.javanauta.usuario.infrastructure.Repository.EnderecoRepository;
 import com.javanauta.usuario.infrastructure.Repository.TelefoneRepository;
 import com.javanauta.usuario.infrastructure.Repository.UsuarioRepository;
 import com.javanauta.usuario.infrastructure.exceptions.ConflictException;
-import com.javanauta.usuario.infrastructure.exceptions.ResourceNotValid;
+import com.javanauta.usuario.infrastructure.exceptions.ResourceNotFound;
 import com.javanauta.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,10 +38,12 @@ public class UsuarioService {
         return usuarioConverter.paraUsuarioDTO(usuario);    //Converti UsuarioEntity para UsuarioDTO e retornei
     }
 
+
     public void existsByEmail(String email) {
         if(!email.contains("@") || !email.contains(".")) {
-            throw new ResourceNotValid("Email incompleto, acrescente '@' ou '.' " + email );
+            throw new ResourceNotFound("Email incompleto, acrescente '@' ou '.' " + email );
         }
+
         boolean existe = usuarioRepository.existsByEmail(email);
         if (existe) {
             throw new ConflictException("Email já cadastrado " + email);
