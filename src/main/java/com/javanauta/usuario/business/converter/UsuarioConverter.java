@@ -25,10 +25,12 @@ public class UsuarioConverter {
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
                 .senha(usuario.getSenha())
-                .enderecos(paraListaEnderecoDTO(usuario.getEnderecos()))    /* Cada endereco e telefone salvo
+                .enderecos(usuario.getEnderecos() != null ?  paraListaEnderecoDTO(usuario.getEnderecos()) : null)    /*
+                Cada endereco e
+                telefone salvo
                 fará o seu build utilizando os metodos abaixo
                 */
-                .telefones(paraListaTelefoneDTO(usuario.getTelefones()))
+                .telefones(usuario.getTelefones() != null ? paraListaTelefoneDTO(usuario.getTelefones()) : null)
                 .build();
 
     }
@@ -81,10 +83,12 @@ public class UsuarioConverter {
                 .nome(usuarioDTO.getNome())
                 .email(usuarioDTO.getEmail())
                 .senha(usuarioDTO.getSenha())
-                .enderecos(paraListaEndereco(usuarioDTO.getEnderecos()))    /* Cada endereco e telefone salvo
+                .enderecos(usuarioDTO.getEnderecos() != null ? paraListaEndereco(usuarioDTO.getEnderecos()) : null)    /*
+                Cada endereco e
+                telefone salvo
                 fará o seu build utilizando os metodos abaixo
                 */
-                .telefones(paraListaTelefone(usuarioDTO.getTelefones()))
+                .telefones(usuarioDTO.getTelefones() != null ? paraListaTelefone(usuarioDTO.getTelefones()) : null)
                 .build();
 
         //    Usuario usuario = new Usuario();
@@ -128,9 +132,9 @@ public class UsuarioConverter {
 
     public Usuario atualizarUsuario(Usuario usuarioEntity, UsuarioDTO usuarioDTO) {
         return Usuario.builder()
-                .nome(usuarioDTO != null ? usuarioDTO.getNome() : usuarioEntity.getNome())
-                .senha(usuarioDTO != null ? usuarioDTO.getSenha() : usuarioEntity.getSenha())
-                .email(usuarioDTO != null ? usuarioDTO.getEmail() : usuarioEntity.getEmail())
+                .nome(usuarioDTO.getNome() != null ? usuarioDTO.getNome() : usuarioEntity.getNome())
+                .senha(usuarioDTO.getSenha() != null ? usuarioDTO.getSenha() : usuarioEntity.getSenha())
+                .email(usuarioDTO.getEmail() != null ? usuarioDTO.getEmail() : usuarioEntity.getEmail())
                 .enderecos(usuarioEntity.getEnderecos())
                 .telefones(usuarioEntity.getTelefones())
                 .id(usuarioEntity.getId())

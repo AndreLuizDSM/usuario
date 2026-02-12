@@ -4,8 +4,10 @@ import com.javanauta.usuario.business.UsuarioService;
 import com.javanauta.usuario.business.dto.EnderecoDTO;
 import com.javanauta.usuario.business.dto.TelefoneDTO;
 import com.javanauta.usuario.business.dto.UsuarioDTO;
-import com.javanauta.usuario.infrastructure.Entity.Usuario;
 import com.javanauta.usuario.infrastructure.security.JwtUtil;
+import com.javanauta.usuario.infrastructure.security.SecurityConfig;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/usuario")
 @RestController
 @RequiredArgsConstructor
-public class Controller {
+@Tag(name = "Usuário", description = "Cadastro e login de usuários")
+@SecurityRequirement(name = SecurityConfig.SECURITY_SCHEME)
+public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final AuthenticationManager authenticationManager;
@@ -28,13 +32,13 @@ public class Controller {
     }
 
     @PostMapping("/endereco")
-    public ResponseEntity<EnderecoDTO> salvarEndereco(@RequestHeader("Authorization") String token,
+    public ResponseEntity<EnderecoDTO> salvarEndereco(@RequestHeader(name = "Authorization", required = false) String token,
                                                       @RequestBody EnderecoDTO enderecoDTO) {
         return ResponseEntity.ok(usuarioService.cadastroEnderecoDTO(token, enderecoDTO));
     }
 
     @PostMapping("/telefone")
-    public ResponseEntity<TelefoneDTO> salvarTelefone(@RequestHeader("Authorization") String token,
+    public ResponseEntity<TelefoneDTO> salvarTelefone(@RequestHeader(name = "Authorization", required = false) String token,
                                                       @RequestBody TelefoneDTO telefoneDTO){
         return ResponseEntity.ok(usuarioService.cadastroTelefoneDTO(token, telefoneDTO));
     }
@@ -61,7 +65,7 @@ public class Controller {
 
     @PutMapping
     public ResponseEntity<UsuarioDTO> atualizarDadosUsuario(@RequestBody UsuarioDTO usuarioDTO,
-                                                            @RequestHeader("Authorization") String token) {
+                                                            @RequestHeader(name = "Authorization", required = false) String token) {
         return ResponseEntity.ok(usuarioService.atualizarUsuario(token, usuarioDTO));
     }
 
