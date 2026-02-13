@@ -3,9 +3,9 @@ package com.javanauta.usuario.business.converter;
 import com.javanauta.usuario.business.dto.EnderecoDTO;
 import com.javanauta.usuario.business.dto.TelefoneDTO;
 import com.javanauta.usuario.business.dto.UsuarioDTO;
-import com.javanauta.usuario.infrastructure.Entity.Endereco;
-import com.javanauta.usuario.infrastructure.Entity.Telefone;
-import com.javanauta.usuario.infrastructure.Entity.Usuario;
+import com.javanauta.usuario.infrastructure.entity.Endereco;
+import com.javanauta.usuario.infrastructure.entity.Telefone;
+import com.javanauta.usuario.infrastructure.entity.Usuario;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
