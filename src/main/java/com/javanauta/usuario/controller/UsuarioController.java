@@ -1,9 +1,11 @@
 package com.javanauta.usuario.controller;
 
 import com.javanauta.usuario.business.UsuarioService;
+import com.javanauta.usuario.business.ViaCepService;
 import com.javanauta.usuario.business.dto.EnderecoDTO;
 import com.javanauta.usuario.business.dto.TelefoneDTO;
 import com.javanauta.usuario.business.dto.UsuarioDTO;
+import com.javanauta.usuario.business.dto.ViaCepDTO;
 import com.javanauta.usuario.infrastructure.security.JwtUtil;
 import com.javanauta.usuario.infrastructure.security.SecurityConfig;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = SecurityConfig.SECURITY_SCHEME)
 public class UsuarioController {
 
+    private final ViaCepService cepService;
     private final UsuarioService usuarioService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
@@ -79,5 +82,10 @@ public class UsuarioController {
     public ResponseEntity<TelefoneDTO> atualizarDadosTelefone(@RequestBody TelefoneDTO telefoneDTO,
                                                               @RequestParam("id") Long id) {
         return ResponseEntity.ok(usuarioService.atualizaTelefone(id, telefoneDTO));
+    }
+
+    @GetMapping("/endereco/{cep}/")
+    public ResponseEntity<ViaCepDTO> buscarCep(@PathVariable("cep") String cep) {
+        return ResponseEntity.ok(cepService.buscaCep(cep));
     }
 }

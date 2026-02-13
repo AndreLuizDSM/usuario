@@ -2,6 +2,7 @@ package com.javanauta.usuario;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 import javax.crypto.ExemptionMechanism;
 
@@ -10,6 +11,7 @@ interface Matematica{
 }
 
 @SpringBootApplication
+@EnableFeignClients
 public class UsuarioApplication {
 
 	public static void main(String[] args) {
