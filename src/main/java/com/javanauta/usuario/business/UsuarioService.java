@@ -1,5 +1,6 @@
 package com.javanauta.usuario.business;
 
+
 import com.javanauta.usuario.business.converter.UsuarioConverter;
 import com.javanauta.usuario.business.dto.EnderecoDTO;
 import com.javanauta.usuario.business.dto.TelefoneDTO;
@@ -7,14 +8,20 @@ import com.javanauta.usuario.business.dto.UsuarioDTO;
 import com.javanauta.usuario.infrastructure.entity.Endereco;
 import com.javanauta.usuario.infrastructure.entity.Telefone;
 import com.javanauta.usuario.infrastructure.entity.Usuario;
+import com.javanauta.usuario.infrastructure.exceptions.ConflictException;
+import com.javanauta.usuario.infrastructure.exceptions.ResourceNotFound;
+import com.javanauta.usuario.infrastructure.exceptions.UnauthorizedException;
 import com.javanauta.usuario.infrastructure.repository.EnderecoRepository;
 import com.javanauta.usuario.infrastructure.repository.TelefoneRepository;
 import com.javanauta.usuario.infrastructure.repository.UsuarioRepository;
-import com.javanauta.usuario.infrastructure.exceptions.ConflictException;
-import com.javanauta.usuario.infrastructure.exceptions.ResourceNotFound;
 import com.javanauta.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +32,10 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final EnderecoRepository enderecoRepository;
     private final TelefoneRepository telefoneRepository;
-    private final UsuarioConverter  usuarioConverter;
+    private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
     public UsuarioDTO salvarUsuario (UsuarioDTO usuarioDTO) {   // Recebi um UsuarioDTO
         existsByEmail(usuarioDTO.getEmail());
@@ -39,6 +47,21 @@ public class UsuarioService {
         return usuarioConverter.paraUsuarioDTO(usuario);    //Converti UsuarioEntity para UsuarioDTO e retornei
     }
 
+    public String autenticadorJWT (UsuarioDTO usuarioDTO) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(),
+                            usuarioDTO.getSenha())
+            );
+            return geradorTokenJWT(authentication);
+        } catch (BadCredentialsException | UsernameNotFoundException | AuthorizationDeniedException e) {
+            throw new UnauthorizedException(e.getMessage());
+        }
+    }
+
+    private String geradorTokenJWT(Authentication authentication) {
+        return "Bearer " + jwtUtil.generateToken(authentication.getName());
+    }
 
     public void existsByEmail(String email) {
         if(!email.contains("@") || !email.contains(".")) {
@@ -69,7 +92,7 @@ public class UsuarioService {
 
     public UsuarioDTO atualizarUsuario (String token, UsuarioDTO usuarioDTO) {
         //Buscar o email através do token (tirar a obrigatoriedade do email)
-        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        String email = extracaoEmail(token);
         //Se tiver uma nova senha, fazer encriptografia
         usuarioDTO.setSenha(usuarioDTO.getSenha() != null
                 ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
@@ -104,7 +127,8 @@ public class UsuarioService {
     }
 
     public EnderecoDTO cadastroEnderecoDTO (String token ,EnderecoDTO enderecoDTO) {
-        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        String email = extracaoEmail(token);
+
         Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(
                 ()-> new ConflictException("Email não encontrado " + email)
         );
@@ -117,7 +141,7 @@ public class UsuarioService {
     }
 
     public TelefoneDTO cadastroTelefoneDTO (String token ,TelefoneDTO telefoneDTO) {
-        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        String email = extracaoEmail(token);
 
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
                 ()-> new ConflictException("Email não encontrado " + email)
@@ -128,5 +152,9 @@ public class UsuarioService {
         telefoneRepository.save(telefoneEntity);
 
             return usuarioConverter.paraTelefoneDTO(telefoneEntity);
+    }
+
+    private String extracaoEmail (String token) {
+        return jwtUtil.extrairEmailToken(token.substring(7));
     }
 }

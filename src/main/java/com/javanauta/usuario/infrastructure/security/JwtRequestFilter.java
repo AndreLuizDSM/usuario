@@ -1,16 +1,23 @@
 package com.javanauta.usuario.infrastructure.security;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.javanauta.usuario.infrastructure.security.dto.ErrorResponseDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 // Define a classe JwtRequestFilter, que estende OncePerRequestFilter
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -30,6 +37,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+      try {
         // Obtém o valor do header "Authorization" da requisição
         final String authorizationHeader = request.getHeader("Authorization");
 
@@ -56,5 +64,36 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
         // Continua a cadeia de filtros, permitindo que a requisição prossiga
         chain.doFilter(request, response);
+    }  catch(ExpiredJwtException e) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write(buildError("Token inválido",
+                HttpStatus.UNAUTHORIZED.value(),
+                request.getRequestURI(),
+                e.getMessage()));
+        }
+    }
+
+    private String buildError (String message, int status, String path, String erro) {
+        // Criar um erroDTO para passar detalhadamente o erro com o Token JWT
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(status)
+                .message(message)
+                .path(path)
+                .erro(erro)
+                .build();
+
+        /*
+            Transformar objeto em String, HttpResponse.write só escreve Strings;
+            Em java antigo, writeValueAsString precisa de um try/catch
+            Em java antigo, ObjectMapper não consegue transformar LocalDateTime em String, precisa ser manualmente
+         */
+        ObjectMapper objectMapper = new ObjectMapper();
+        // objectMapper.registerModule(new JavaTimeModule());
+        // objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        return objectMapper.writeValueAsString(errorResponseDTO);
+
     }
 }
