@@ -9,6 +9,7 @@ import com.javanauta.usuario.infrastructure.entity.Endereco;
 import com.javanauta.usuario.infrastructure.entity.Telefone;
 import com.javanauta.usuario.infrastructure.entity.Usuario;
 import com.javanauta.usuario.infrastructure.exceptions.ConflictException;
+import com.javanauta.usuario.infrastructure.exceptions.IllegalArgumentException;
 import com.javanauta.usuario.infrastructure.exceptions.ResourceNotFound;
 import com.javanauta.usuario.infrastructure.exceptions.UnauthorizedException;
 import com.javanauta.usuario.infrastructure.repository.EnderecoRepository;
@@ -65,7 +66,7 @@ public class UsuarioService {
 
     public void existsByEmail(String email) {
         if(!email.contains("@") || !email.contains(".")) {
-            throw new ResourceNotFound("Email incompleto, acrescente '@' ou '.' " + email );
+            throw new IllegalArgumentException("Email incompleto, acrescente '@' ou '.' " + email );
         }
 
         boolean existe = usuarioRepository.existsByEmail(email);
